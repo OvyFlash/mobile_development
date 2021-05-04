@@ -1,14 +1,11 @@
-package ua.kpi.comsys.io8130
+package ua.kpi.comsys.io8130.SecondFragment
 
 import android.graphics.Color
-import android.graphics.Paint
 import android.os.Build
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -18,9 +15,9 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.GridLabelRenderer
-import com.jjoe64.graphview.LegendRenderer
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
+import ua.kpi.comsys.io8130.R
 import kotlin.math.exp
 
 // TODO: Rename parameter arguments, choose names that match

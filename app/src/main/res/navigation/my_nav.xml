@@ -7,14 +7,20 @@
 
     <fragment
         android:id="@+id/firstFragment"
-        android:name="ua.kpi.comsys.io8130.FirstFragment"
-        android:label="General"
+        android:name="ua.kpi.comsys.io8130.FirstFragment.FirstFragment"
+        android:label=""
         tools:layout="@layout/fragment_first" />
     <fragment
         android:id="@+id/secondFragment"
-        android:name="ua.kpi.comsys.io8130.SecondFragment"
-        android:label="Drawing"
+        android:name="ua.kpi.comsys.io8130.SecondFragment.SecondFragment"
+        android:label=""
         tools:layout="@layout/fragment_second" />
-        <!--android:label="Drawing"-->
+    <fragment
+        android:id="@+id/thirdFragment"
+        android:name="ua.kpi.comsys.io8130.ThirdFragment.ThirdFragment"
+        android:label=""
+        tools:layout="@layout/fragment_third" />
+
+    <!--android:label="Drawing"-->
 
 </navigation>

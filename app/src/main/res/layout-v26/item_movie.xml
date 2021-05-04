@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="160dp">
+
+    <ImageView
+        android:id="@+id/container"
+        android:background="@drawable/container_bg"
+        android:layout_width="0dp"
+        android:layout_height="155dp"
+        android:contentDescription="@string/img_movie"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/item_movie_img"
+        android:layout_width="100dp"
+        android:layout_height="150dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:background="@drawable/container_bg"
+        android:contentDescription="@string/img_movie"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/container"
+        app:layout_constraintBottom_toBottomOf="@id/container"/>
+    <TextView
+        android:id="@+id/item_movie_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="2dp"
+        android:breakStrategy="balanced"
+        app:autoSizeTextType="uniform"
+        android:text=""
+        app:layout_constraintEnd_toEndOf="@id/container"
+        app:layout_constraintStart_toEndOf="@id/item_movie_img"
+        app:layout_constraintTop_toTopOf="@id/container"
+        app:layout_constraintRight_toRightOf="@id/container"/>
+
+    <TextView
+        android:id="@+id/item_movie_date"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:breakStrategy="balanced"
+        app:autoSizeTextType="uniform"
+        android:text=""
+        app:layout_constraintEnd_toEndOf="@id/container"
+        app:layout_constraintStart_toEndOf="@id/item_movie_img"
+        app:layout_constraintTop_toBottomOf="@id/item_movie_title"
+        app:layout_constraintRight_toRightOf="@id/container"/>
+
+    <TextView
+        android:id="@+id/item_movie_type"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:breakStrategy="balanced"
+        app:autoSizeTextType="uniform"
+        android:text=""
+        app:layout_constraintEnd_toEndOf="@id/container"
+        app:layout_constraintStart_toEndOf="@id/item_movie_img"
+        app:layout_constraintBottom_toBottomOf="@id/item_movie_img"
+        app:layout_constraintRight_toRightOf="@id/container"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
