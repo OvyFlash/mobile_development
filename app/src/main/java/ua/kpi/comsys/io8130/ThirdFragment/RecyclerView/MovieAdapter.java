@@ -159,7 +159,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.movieViewHol
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            mdata.remove(viewHolder.getAdapterPosition());
+            if (moviesListAll.size() > 0) {
+                moviesListAll.remove(viewHolder.getAdapterPosition());
+            }
+            if (mdata.size() > 0) {
+                mdata.remove(viewHolder.getAdapterPosition());
+            }
             notifyDataSetChanged();
         }
     };
