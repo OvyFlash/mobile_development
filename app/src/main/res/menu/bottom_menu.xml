@@ -13,4 +13,8 @@
         android:id="@+id/thirdFragment"
         android:title="Movies"
         android:icon="@drawable/ic_third_fragment"/>
+    <item
+        android:id="@+id/fourthFragment"
+        android:title="Photos"
+        android:icon="@drawable/ic_fourth_fragment"/>
 </menu>

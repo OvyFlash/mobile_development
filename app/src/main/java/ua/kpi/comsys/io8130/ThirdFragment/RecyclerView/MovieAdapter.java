@@ -39,6 +39,19 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.movieViewHol
         this.notFound = notFound;
     }
 
+    public List<Movie> getCurrentMovies() {
+        return this.moviesListAll;
+    }
+    public void setCurrentMovies(List<Movie> movies) {
+        this.moviesListAll = new ArrayList<Movie>(movies);
+        this.mdata = new ArrayList<Movie>(this.moviesListAll);
+        notifyDataSetChanged();
+        if (mdata.size() == 0) {
+            notFound.setVisibility(View.VISIBLE);
+        } else {
+            notFound.setVisibility(View.INVISIBLE);
+        }
+    }
     @NonNull
     @Override
     public movieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -85,8 +98,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.movieViewHol
     public Filter getFilter() {
         return filter;
     }
-    Filter filter = new Filter() {
 
+    Filter filter = new Filter() {
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             List <Movie> filteredList = new ArrayList<>();
@@ -159,13 +172,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.movieViewHol
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            if (moviesListAll.size() > 0) {
-                moviesListAll.remove(viewHolder.getAdapterPosition());
-            }
-            if (mdata.size() > 0) {
-                mdata.remove(viewHolder.getAdapterPosition());
-            }
-            notifyDataSetChanged();
+//            if (moviesListAll.size() > 0) {
+//                moviesListAll.remove(viewHolder.getAdapterPosition());
+//            }
+            moviesListAll.remove(viewHolder.getAdapterPosition());
+            mdata.remove(viewHolder.getAdapterPosition());
+            //mdata.clear();
+            //mdata.addAll(moviesListAll);
+            notifyItemRemoved(viewHolder.getAdapterPosition());
+            //notifyDataSetChanged();
         }
     };
 

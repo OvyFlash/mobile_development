@@ -32,7 +32,8 @@ class MainActivity : AppCompatActivity() {
             setOf(
                 R.id.firstFragment,
                 R.id.secondFragment,
-                R.id.thirdFragment
+                R.id.thirdFragment,
+                R.id.fourthFragment
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)

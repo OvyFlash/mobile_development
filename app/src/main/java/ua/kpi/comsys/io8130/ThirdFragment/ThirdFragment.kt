@@ -215,15 +215,14 @@ class ThirdFragment : Fragment(), MovieCallback {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (data == null) {
-
             return
         }
         val movie: Movie = data.extras!!.getSerializable("newMovie") as Movie
 
+        this.movies!!.clear()
         this.movies!!.add(movie)
-        movieAdapter = MovieAdapter(movies, this, this.itemsNotFound)
-        rvMovies!!.adapter = movieAdapter
-        rvMovies!!.adapter!!.notifyDataSetChanged()
+        this.movies!!.addAll(movieAdapter!!.currentMovies)
+        movieAdapter!!.currentMovies = movies
 
         super.onActivityResult(requestCode, resultCode, data)
     }

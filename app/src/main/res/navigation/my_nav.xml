@@ -20,6 +20,11 @@
         android:name="ua.kpi.comsys.io8130.ThirdFragment.ThirdFragment"
         android:label=""
         tools:layout="@layout/fragment_third" />
+    <fragment
+        android:id="@+id/fourthFragment"
+        android:name="ua.kpi.comsys.io8130.FourthFragment.FourthFragment"
+        android:label=""
+        tools:layout="@layout/fragment_fourth" />
 
     <!--android:label="Drawing"-->
 
