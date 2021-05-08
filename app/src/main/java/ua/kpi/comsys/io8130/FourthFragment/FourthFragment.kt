@@ -4,12 +4,21 @@ import android.Manifest
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.Image
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.arasthel.spannedgridlayoutmanager.SpanSize
+import com.arasthel.spannedgridlayoutmanager.SpannedGridLayoutManager
 import ua.kpi.comsys.io8130.R
 
 // TODO: Rename parameter arguments, choose names that match
@@ -29,8 +38,11 @@ class FourthFragment : Fragment() {
     private var btnAddPhoto: MenuItem? = null
     private final val IMAGE_PICK_CODE: Int = 1000;
     private final val PERMISSION_CODE: Int = 1001;
-    private var imageView: ImageView? = null
+
+   // var testImageView: ImageView? = null
+    private var images: ArrayList<android.net.Uri> = ArrayList(0)
     private var photoAdapter: PhotoAdapter? = null
+    private var recyclerImages: RecyclerView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,8 +50,17 @@ class FourthFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
+        if (savedInstanceState != null) {
+            images = savedInstanceState.getParcelableArrayList<android.net.Uri>("images") as ArrayList<Uri>
+        }
         setHasOptionsMenu(true)
-        photoAdapter = PhotoAdapter(this.requireContext())
+        photoAdapter = PhotoAdapter(this.requireContext(), images)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putParcelableArrayList("images", images)
     }
 
     override fun onCreateView(
@@ -52,12 +73,34 @@ class FourthFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //imageView = requireView().findViewById<ImageView>(R.id.imageToPlace)
+
+        /*SET HERE RECYCLER AND ADAPTER*/
+        recyclerImages = requireView().findViewById<RecyclerView>(R.id.photo_recycler_view)
+
+        val gridLayout: GridLayoutManager = GridLayoutManager(this.context, 3)
+        gridLayout.spanSizeLookup = object: GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return if ((position % 9) % 6 == 0) {
+                    2
+                } else 1
+            }
+        }
+        val spanned = SpannedGridLayoutManager(SpannedGridLayoutManager.Orientation.VERTICAL, 3)
+        spanned.spanSizeLookup = SpannedGridLayoutManager.SpanSizeLookup { position ->
+            if ((position % 9) % 7 == 0) {
+                SpanSize(2, 2)
+            } else SpanSize(1, 1)
+        }
+
+        //staggered.gapStrategy
+        recyclerImages!!.layoutManager = spanned
+        recyclerImages!!.setHasFixedSize(true)
+        recyclerImages!!.adapter = photoAdapter
+        /*FINISH SETTINGS*/
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.add_photo, menu)
-        val item: MenuItem = menu.findItem(R.id.action_add_photo)
         btnAddPhoto = menu.findItem(R.id.action_add_photo)
 
         return super.onCreateOptionsMenu(menu, inflater)
@@ -74,8 +117,7 @@ class FourthFragment : Fragment() {
                 }
 
                 pickImageFromGallery()
-               // val intent: Intent = Intent(this.requireContext(), ::class.java)
-             //   startActivityForResult(intent, 1)
+
             }
             else -> super.onOptionsItemSelected(item)
         }
@@ -93,11 +135,14 @@ class FourthFragment : Fragment() {
             return
         }
         if (resultCode == RESULT_OK && requestCode == IMAGE_PICK_CODE) {
-            imageView!!.setImageURI(data.data)
+            images.add(data.data as android.net.Uri)
+            photoAdapter!!.setPhotos(images)
         }
 
         super.onActivityResult(requestCode, resultCode, data)
     }
+
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,

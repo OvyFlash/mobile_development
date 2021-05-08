@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/my_im1"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:columnCount="3">
-<!--
+    android:layout_height="200dp"
+    android:adjustViewBounds="true"
+    android:paddingLeft="1dp"
+    android:paddingBottom="1dp"
+    android:paddingTop="1dp"
+    android:paddingRight="1dp"
+    tools:srcCompat="@tools:sample/avatars" />
+    <!--
     <ImageView
         android:id="@+id/my_im1"
         android:layout_width="wrap_content"
@@ -80,5 +86,4 @@
         android:layout_row="4"
         android:layout_column="0"
         tools:srcCompat="@tools:sample/avatars" />
- -->
-</GridLayout>
+-->
