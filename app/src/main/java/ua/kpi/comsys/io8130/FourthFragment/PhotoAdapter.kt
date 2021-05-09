@@ -1,24 +1,23 @@
 package ua.kpi.comsys.io8130.FourthFragment
 
 import android.content.Context
-import android.graphics.Color
-import android.net.Uri
-import android.provider.Contacts
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.request.RequestOptions
+import ua.kpi.comsys.io8130.FourthFragment.Models.Flower
+import ua.kpi.comsys.io8130.LoadingIndicator
 import ua.kpi.comsys.io8130.R
-import ua.kpi.comsys.io8130.ThirdFragment.Models.Movie
-import java.io.File
 
-public class PhotoAdapter(context: Context, photos: ArrayList<Uri>) : RecyclerView.Adapter<PhotoAdapter.MyViewHolder>() {
+
+public class PhotoAdapter(context: Context, photos: ArrayList<Flower>) : RecyclerView.Adapter<PhotoAdapter.MyViewHolder>() {
     var context: Context? = context
-    var photos: ArrayList<android.net.Uri>? = photos
+    var photos: ArrayList<Flower>? = photos
 
     override fun getItemCount(): Int {
         if (photos == null) {
@@ -29,29 +28,32 @@ public class PhotoAdapter(context: Context, photos: ArrayList<Uri>) : RecyclerVi
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-//        holder.photoHolder!!.setImageURI(photos!![position])
-        val item: android.net.Uri = this.photos!![position]
-//        testPhoto!!.setImageURI(item)
-//        Log.e("131231243", item.path!!)
-//        holder.photoHolder!!.setImageURI(item)
-//        Glide.with(holder.itemView.context)
-//            .load(File(item.path!!))
-//            .transform(CenterCrop())
-//            .into(holder.photoHolder!!)
-//        if (photos!!.size % 7 == 0 || photos!!.size % 12 == 0) {
-//            holder.photoHolder!!.maxHeight = 200
-//        } else {
-//            holder.photoHolder!!.maxHeight = 100
-//        }
-        //holder.photoHolder!!.setImageURI(item)
-        Glide.with(holder.itemView.context).load(item).transforms(CenterCrop()).into(holder.photoHolder!!)
+        val item: Flower = this.photos!![position]
+        holder.loading!!.setVisible()
+        val options: RequestOptions = RequestOptions()
+            .centerCrop()
+            .placeholder(R.mipmap.ic_launcher_round)
+            .error(R.mipmap.ic_launcher_round)
+
+        if (item.ByURI()) {
+            Glide.with(holder.itemView.context)
+                .load(item.largeImageURL)
+                .transforms(CenterCrop())
+                .into(holder.photoHolder!!)
+        } else {
+            Glide.with(holder.itemView.context)
+                .load(item.photoUri)
+                .transforms(CenterCrop())
+                .apply(options)
+                .into(holder.photoHolder!!)
+        }
+        holder.loading!!.hide()
     }
 
     @JvmName("setPhotos1")
-    public final fun setPhotos(photos: ArrayList<android.net.Uri>) {
-        this.photos = ArrayList<android.net.Uri>(photos)
+    public final fun setPhotos(photos: ArrayList<Flower>) {
+        this.photos = ArrayList<Flower>(photos)
         notifyDataSetChanged()
-        Log.e("13", "UPDATED PHOTO ADDED NEW")
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
@@ -63,9 +65,11 @@ public class PhotoAdapter(context: Context, photos: ArrayList<Uri>) : RecyclerVi
 
     public class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var photoHolder: ImageView? = null
+        var loading: LoadingIndicator? = null
         init {
             super.itemView
             photoHolder = itemView.findViewById(R.id.my_im1)
+            loading = LoadingIndicator(itemView.findViewById<ProgressBar>(R.id.my_loading1))
 //            photosHolder[1] = itemView.findViewById(R.id.my_im2)
 //            photosHolder[2] = itemView.findViewById(R.id.my_im3)
 //            photosHolder[3] = itemView.findViewById(R.id.my_im4)

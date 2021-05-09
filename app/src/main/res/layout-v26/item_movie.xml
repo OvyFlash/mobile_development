@@ -71,4 +71,15 @@
         app:layout_constraintStart_toEndOf="@id/item_movie_img"
         app:layout_constraintBottom_toBottomOf="@id/item_movie_img"
         app:layout_constraintRight_toRightOf="@id/container"/>
+    <ProgressBar
+        android:id="@+id/my_loading1"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="visible"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>

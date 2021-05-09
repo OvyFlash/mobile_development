@@ -14,6 +14,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.request.RequestOptions;
 
 import ua.kpi.comsys.io8130.R;
 import ua.kpi.comsys.io8130.ThirdFragment.Models.Movie;
@@ -86,15 +87,23 @@ public class MovieDetailedActivity extends AppCompatActivity {
         plot.setTextColor(Color.BLACK);
 
 
-        int img = this.getResources().getIdentifier(
-                item.getPoster().toLowerCase().replace(".jpg", ""),
-                "drawable", this.getPackageName()
-        );
 
-        Glide.with(this).
-                load(img).
-                transforms(new CenterCrop()).
-                into(imgMovie);
+        if (item.getPoster().contains("https")) {
+            RequestOptions options = new RequestOptions()
+                    .centerCrop()
+                    .placeholder(R.mipmap.ic_launcher_round)
+                    .error(R.mipmap.ic_launcher_round);
+
+            ImageView poster = findViewById(R.id.item_movie_img);
+            plot.setText(item.getPlot());
+            plot.setTextColor(Color.BLACK);
+
+            Glide.with(this).
+                    load(item.getPoster()).
+                    apply(options).
+                    transforms(new CenterCrop()).
+                    into(poster);
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (this.getResources().getConfiguration().isNightModeActive()) {

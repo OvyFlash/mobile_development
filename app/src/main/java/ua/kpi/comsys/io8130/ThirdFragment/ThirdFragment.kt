@@ -27,8 +27,16 @@ import androidx.core.util.Pair
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
+import com.androidnetworking.AndroidNetworking
+import com.androidnetworking.error.ANError
+import com.androidnetworking.interfaces.JSONObjectRequestListener
 import kotlinx.coroutines.selects.select
+import org.json.JSONException
+import org.json.JSONObject
 import org.w3c.dom.Text
+import ua.kpi.comsys.io8130.FourthFragment.Models.APIResponse
+import ua.kpi.comsys.io8130.FourthFragment.Models.Flower
+import java.lang.Exception
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -46,7 +54,7 @@ class ThirdFragment : Fragment(), MovieCallback {
     private var param2: String? = null
     private var rvMovies: RecyclerView? = null
     private var movieAdapter: MovieAdapter? = null
-    private var movies: ArrayList<Movie>? = null
+    private var movies: ArrayList<Movie>? = ArrayList(0)
     private var btnAddMovie: MenuItem? = null
     private var itemsNotFound: TextView? = null
 
@@ -56,10 +64,11 @@ class ThirdFragment : Fragment(), MovieCallback {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
-        movies = ListViewController.ReadFile(this.requireContext())
-        for (movie in movies!!) {
-            movie.AddFieldByImdbID(this.requireContext())
-        }
+
+//        movies = ListViewController.ReadFile(this.requireContext())
+//        for (movie in movies!!) {
+//            movie.AddFieldByImdbID(this.requireContext())
+//        }
 
         setHasOptionsMenu(true)
     }
@@ -129,43 +138,44 @@ class ThirdFragment : Fragment(), MovieCallback {
             }
     }
 
-    class ListViewController: Fragment() {
-        companion object {
-            fun ReadFile(context: Context): ArrayList<Movie> {
-
-                var reader: BufferedReader? = null;
-                val search  = Gson()
-
-                try {
-                    reader = BufferedReader(
-                             InputStreamReader(context.assets.open("MoviesList.txt"))
-                    );
-
-                    return search.fromJson<Search>(reader, Search::class.java).Search as ArrayList<Movie>
-                } catch (e: IOException) {
-                    Log.println(Log.INFO, "12", e.toString())
-
-                } finally {
-                    if (reader != null) {
-                        try {
-                            reader.close();
-                        } catch (e: IOException) {
-                            Log.println(Log.INFO, "13", e.toString())
-                        }
-                    }
-                }
-                return search.fromJson<Search>(reader, Search::class.java).Search as ArrayList<Movie>
-            }
-        }
-
-    }
-
     override fun onMovieItemClick(pos: Int, imgContainer: ImageView,
                                   imgMovie: ImageView,
                                   title: TextView,
                                   date: TextView,
                                   type: TextView) {
 
+        val request = AndroidNetworking.get("https://omdbapi.com/")
+            .addQueryParameter("apikey", "cb3c0179")
+            .addQueryParameter("i", movies!![pos].imdbID)
+            .build()
+        Log.e("51412", request.url.toString())
+        request.getAsJSONObject(object : JSONObjectRequestListener {
+            override fun onResponse(response: JSONObject) {
+                try {
+                    val reader = BufferedReader(
+                        InputStreamReader(response.toString().byteInputStream())
+                    );
+
+                    try {
+                        val r = Gson()
+                        val loc = r.fromJson<Search>(reader, Movie::class.java) as Movie
+                        movies!![pos] = loc
+
+                    } catch (e: Exception) {
+                        Log.e("123", e.toString())
+                    }
+                } catch (e: JSONException) {
+                    Log.e("55551", e.toString())
+                }
+            }
+
+            override fun onError(error: ANError) {
+                // handle error
+                Log.e("responce_app", error.toString()) //Logs out 20
+            }
+        })
+
+        rvMovies!!.adapter!!.notifyDataSetChanged()
         val intent: Intent = Intent(this.requireContext(), MovieDetailedActivity::class.java)
         intent.putExtra("movieObject", movies!![pos])
         val p1: Pair<View,String> = Pair.create(imgContainer, "imageView")
@@ -190,7 +200,14 @@ class ThirdFragment : Fragment(), MovieCallback {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                movieAdapter!!.filter.filter(newText)
+                if (newText.length >= 2) {
+                    val locMovies = requestMovies(newText)
+                    locMovies.forEach {
+                        Log.e("2131321", it.Title)
+                    }
+                    movieAdapter!!.forFiltering = locMovies
+                    movieAdapter!!.filter.filter(newText)
+                }
                 return false
             }
 
@@ -202,6 +219,46 @@ class ThirdFragment : Fragment(), MovieCallback {
 
     }
 
+    private var locMovies: ArrayList<Movie> = ArrayList(0)
+    fun requestMovies(text: String): List<Movie> {
+        //http://omdbapi.com/?s=Harry%20Potter&apikey=cb3c0179&page=1
+        val request = AndroidNetworking.get("https://omdbapi.com/")
+            .addQueryParameter("apikey", "cb3c0179")
+            .addQueryParameter("s", text)
+            .addQueryParameter("page", "1")
+            .build()
+        Log.e("51412", request.url.toString())
+            request.getAsJSONObject(object : JSONObjectRequestListener {
+                override fun onResponse(response: JSONObject) {
+                    try {
+                        val reader = BufferedReader(
+                            InputStreamReader(response.toString().byteInputStream())
+                        );
+
+                        try {
+                            val r = Gson()
+                            val loc = r.fromJson<Search>(reader, Search::class.java).Search
+                            loc.forEach {
+                                locMovies.add(it)
+                            }
+
+                        } catch (e: Exception) {
+                            Log.e("123", e.toString())
+                        }
+                    } catch (e: JSONException) {
+                        Log.e("55551", e.toString())
+                    }
+                }
+
+                override fun onError(error: ANError) {
+                    // handle error
+                    Log.e("responce_app", error.toString()) //Logs out 20
+                }
+            })
+        //Log.e("123", locMovies.toString())
+
+        return locMovies as List<Movie>
+    }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             btnAddMovie!!.itemId -> {
@@ -218,12 +275,45 @@ class ThirdFragment : Fragment(), MovieCallback {
             return
         }
         val movie: Movie = data.extras!!.getSerializable("newMovie") as Movie
+        addMovie(movie)
 
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    fun addMovie(movie: Movie) {
         this.movies!!.clear()
         this.movies!!.add(movie)
         this.movies!!.addAll(movieAdapter!!.currentMovies)
         movieAdapter!!.currentMovies = movies
-
-        super.onActivityResult(requestCode, resultCode, data)
     }
+//
+//    class ListViewController: Fragment() {
+//        companion object {
+//            fun ReadFile(context: Context): ArrayList<Movie> {
+//
+//                var reader: BufferedReader? = null;
+//                val search  = Gson()
+//
+//                try {
+//                    reader = BufferedReader(
+//                        InputStreamReader(context.assets.open("MoviesList.txt"))
+//                    );
+//
+//                    return search.fromJson<Search>(reader, Search::class.java).Search as ArrayList<Movie>
+//                } catch (e: IOException) {
+//                    Log.println(Log.INFO, "12", e.toString())
+//
+//                } finally {
+//                    if (reader != null) {
+//                        try {
+//                            reader.close();
+//                        } catch (e: IOException) {
+//                            Log.println(Log.INFO, "13", e.toString())
+//                        }
+//                    }
+//                }
+//                return search.fromJson<Search>(reader, Search::class.java).Search as ArrayList<Movie>
+//            }
+//        }
+//    }
 }

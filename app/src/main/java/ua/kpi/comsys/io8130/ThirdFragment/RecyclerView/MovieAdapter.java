@@ -18,25 +18,37 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.request.RequestOptions;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import ua.kpi.comsys.io8130.LoadingIndicator;
 import ua.kpi.comsys.io8130.R;
 import ua.kpi.comsys.io8130.ThirdFragment.Models.Movie;
 import ua.kpi.comsys.io8130.ThirdFragment.Models.MovieCallback;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.movieViewHolder> implements Filterable {
 
-    List<Movie> mdata;
+    ArrayList<Movie> mdata = new ArrayList<Movie>(0);
     MovieCallback callback;
     List<Movie> moviesListAll;
     TextView notFound;
-    public MovieAdapter(List<Movie> mdata, MovieCallback callback, TextView notFound) {
-        this.mdata = mdata; this.callback = callback;
-        this.moviesListAll = new ArrayList<>(mdata);
+    public List<Movie> forFiltering;
+    public MovieAdapter(ArrayList<Movie> mdata, MovieCallback callback, TextView notFound) {
+        if (mdata != null) {
+            this.mdata = mdata;
+        }
+        this.callback = callback;
+        this.moviesListAll = new ArrayList<>(this.mdata);
         this.notFound = notFound;
+        if (this.mdata.size() == 0) {
+            notFound.setVisibility(View.VISIBLE);
+        } else {
+            notFound.setVisibility(View.INVISIBLE);
+        }
     }
 
     public List<Movie> getCurrentMovies() {
@@ -65,27 +77,45 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.movieViewHol
     @Override
     public void onBindViewHolder(@NonNull movieViewHolder holder, int position) {
         Movie item = this.mdata.get(position);
+        holder.loading.setVisible();
 
         holder.Title.setText(item.getTitle());
         holder.Year.setText(item.getYear());
         holder.Type.setText(item.getType());
 
-        int img = holder.itemView.getContext().getResources().getIdentifier(
-          mdata.get(position).getPoster().toLowerCase().replace(".jpg", ""),
-                "drawable", holder.itemView.getContext().getPackageName()
-        );
 
-        Log.e("13", item.getPoster());
-        Glide.with(holder.itemView.getContext()).
-                load(img).
-        transforms(new CenterCrop()).
-        into(holder.imgMovie);
+
+        if (!mdata.get(position).getPoster().contains("https")) {
+            int img = holder.itemView.getContext().getResources().getIdentifier(
+                    mdata.get(position).getPoster().toLowerCase().replace(".jpg", ""),
+                    "drawable", holder.itemView.getContext().getPackageName()
+            );
+            Log.e("13", item.getPoster());
+            Glide.with(holder.itemView.getContext()).
+                    load(img).
+                    transforms(new CenterCrop()).
+                    into(holder.imgMovie);
+        } else {
+            RequestOptions options = new RequestOptions()
+                    .centerCrop()
+                    .placeholder(R.mipmap.ic_launcher_round)
+                    .error(R.mipmap.ic_launcher_round);
+
+            Glide.with(holder.itemView.getContext()).
+                    load(item.getPoster()).
+                    apply(options).
+                    transforms(new CenterCrop()).
+                    into(holder.imgMovie);
+        }
+
+
 
         if (holder.itemView.getResources().getConfiguration().isNightModeActive()) {
             holder.Title.setTextColor(Color.BLACK);
             holder.Year.setTextColor(Color.BLACK);
             holder.Type.setTextColor(Color.BLACK);
         }
+        holder.loading.hide();
 
     }
 
@@ -100,6 +130,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.movieViewHol
     }
 
     Filter filter = new Filter() {
+
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             List <Movie> filteredList = new ArrayList<>();
@@ -107,6 +138,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.movieViewHol
             if (constraint.toString().isEmpty()) {
                 filteredList.addAll(moviesListAll);
             } else {
+                for (Movie m: forFiltering) {
+                    if (m.getTitle().toLowerCase().contains(constraint.toString().toLowerCase())) {
+                        filteredList.add(m);
+                    }
+                }
                 for (Movie m: moviesListAll) {
                     if (m.getTitle().toLowerCase().contains(constraint.toString().toLowerCase())) {
                         filteredList.add(m);
@@ -117,6 +153,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.movieViewHol
             FilterResults filterResults = new FilterResults();
             filterResults.values = filteredList;
 
+            forFiltering.clear();
             return filterResults;
         }
 
@@ -137,6 +174,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.movieViewHol
     public class movieViewHolder extends RecyclerView.ViewHolder {
         ImageView imgMovie, imgContainer;
         TextView Title, Year, Type;
+        LoadingIndicator loading;
 
         public movieViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -146,6 +184,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.movieViewHol
             Title = itemView.findViewById(R.id.item_movie_title);
             Year = itemView.findViewById(R.id.item_movie_date);
             Type = itemView.findViewById(R.id.item_movie_type);
+            loading = new LoadingIndicator(itemView.findViewById(R.id.my_loading1));
 
             //Log.println(Log.INFO, "12", imgMovie.toString() + imgContainer.toString()+ Title.toString() + Year.toString() + Type.toString());
 
@@ -172,15 +211,19 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.movieViewHol
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-//            if (moviesListAll.size() > 0) {
-//                moviesListAll.remove(viewHolder.getAdapterPosition());
-//            }
-            moviesListAll.remove(viewHolder.getAdapterPosition());
-            mdata.remove(viewHolder.getAdapterPosition());
-            //mdata.clear();
-            //mdata.addAll(moviesListAll);
+            try {
+                if (moviesListAll != null) {
+                    moviesListAll.remove(viewHolder.getAdapterPosition());
+                }
+                if (mdata != null) {
+                    mdata.remove(viewHolder.getAdapterPosition());
+                }
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+
             notifyItemRemoved(viewHolder.getAdapterPosition());
-            //notifyDataSetChanged();
+
         }
     };
 
